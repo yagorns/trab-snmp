@@ -1,0 +1,77 @@
+<form [formGroup]="form">
+    <legend style="margin-top: 10px;">Dados do Equipamento</legend>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2 form-group">
+                    <label>IP</label>
+                    <input dropSpecialCharacters="false" mask="00.00.00.00" type="text" class="form-control" formControlName="ipAddress">
+                </div>
+                <div class="col-md-2 form-group">
+                    <label>Porta</label>
+                    <input mask="00000" type="text" class="form-control" formControlName="port">
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Communit</label>
+                    <input type="text" class="form-control" formControlName="communit" maxlength="25">
+                </div>
+                <div class="col-md-1 form-group">
+                    <label>Versão</label>
+                    <input type="text" class="form-control" formControlName="version" maxlength="4">
+                </div>
+                <div class="col-md-2 form-group">
+                    <label>Timeout</label>
+                    <input mask="000000" type="text" class="form-control" formControlName="timeout">
+                </div>
+                <div class="col-md-2 form-group">
+                    <label>Retransmissões</label>
+                    <input mask="0000" type="text" class="form-control" formControlName="retransmissions">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="device-textarea-resume">Resumo do equipamento</label>
+                    <textarea readonly class="form-control" id="device-textarea-resume" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <legend style="margin-top: 10px;">Interfaces</legend>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-10 form-group">
+                    <label>Interface</label>
+                    <select class="form-control" formControlName="interface">
+                        <option *ngFor="let interface of interfaces" [value]="interface.value">{{ interface.name }}</option>
+                    </select>
+                </div>
+                <div class="col-md-2 form-group">
+                    <label>Intervalo</label>
+                    <input mask="0000" type="text" class="form-control" formControlName="interval">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Resumo da interface</label>
+                    <textarea readonly class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <legend style="margin-top: 10px;">Taxa de Utilização</legend>
+
+    <div class="card form-group">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <textarea readonly class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
