@@ -2,37 +2,40 @@
     <legend style="margin-top: 10px;">Dados do Equipamento</legend>
 
     <div class="card">
-        <div class="card-body">
+        <div class="card-body" formGroupName="deviceInfo">
             <div class="row">
-                <div class="col-md-2 form-group">
+                <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>IP</label>
-                    <input dropSpecialCharacters="false" mask="00.00.00.00" type="text" class="form-control" formControlName="ipAddress">
+                    <input type="text" class="form-control" formControlName="ipAddress">
                 </div>
-                <div class="col-md-2 form-group">
+                <div class="col-md-1 form-group" style="padding-right: 0;">
                     <label>Porta</label>
                     <input mask="00000" type="text" class="form-control" formControlName="port">
                 </div>
-                <div class="col-md-3 form-group">
-                    <label>Communit</label>
-                    <input type="text" class="form-control" formControlName="communit" maxlength="25">
+                <div class="col-md-2 form-group" style="padding-right: 0;">
+                    <label>Community</label>
+                    <input type="text" class="form-control" formControlName="community" maxlength="25">
                 </div>
-                <div class="col-md-1 form-group">
+                <div class="col-md-1 form-group" style="padding-right: 0;">
                     <label>Versão</label>
                     <input type="text" class="form-control" formControlName="version" maxlength="4">
                 </div>
-                <div class="col-md-2 form-group">
+                <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>Timeout</label>
                     <input mask="000000" type="text" class="form-control" formControlName="timeout">
                 </div>
-                <div class="col-md-2 form-group">
+                <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>Retransmissões</label>
                     <input mask="0000" type="text" class="form-control" formControlName="retransmissions">
+                </div>
+                <div class="col-md-2 form-group">
+                    <input style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="Buscar" (click)="sendDeviceOptions()">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="device-textarea-resume">Resumo do equipamento</label>
-                    <textarea readonly class="form-control" id="device-textarea-resume" rows="3"></textarea>
+                    <textarea readonly class="form-control" id="device-textarea-resume" rows="5">{{ deviceInfos }}</textarea>
                 </div>
             </div>
         </div>
