@@ -10,10 +10,10 @@ io.on('connection', (socket) => {
         var options = {
             port: deviceInfo.port ? deviceInfo.port : 161,
             retries: deviceInfo.retransmissions ? deviceInfo.retransmissions : 1,
-            timeout: deviceInfo.timeout ? deviceInfo.timeout : 5000,
+            timeout: deviceInfo.timeout ? deviceInfo.timeout : 1000,
             transport: "udp4",
             trapPort: 162,
-            version: deviceInfo.version ? deviceInfo.retransmissions : snmp.Version1,
+            version: deviceInfo.version ? deviceInfo.version : snmp.Version2c,
             idBitsSize: 16
         };
 
@@ -72,7 +72,17 @@ io.on('connection', (socket) => {
     });
 
     socket.on('send-interface-options', (something) => {
-        var session = snmp.createSession(something.ipAddress, something.community);
+        var options = {
+            port: something.port ? something.port : 161,
+            retries: something.retransmissions ? something.retransmissions : 1,
+            timeout: something.timeout ? something.timeout : 1000,
+            transport: "udp4",
+            trapPort: 162,
+            version: something.version ? something.version : snmp.Version2c,
+            idBitsSize: 16
+        };
+
+        var session = snmp.createSession(something.ipAddress, something.community, options);
         var infoOids = [{
                 name: "Velocidade",
                 oid: '1.3.6.1.2.1.2.2.1.5.' + something.interfaceNumber
@@ -129,7 +139,17 @@ io.on('connection', (socket) => {
     });
     
     socket.on('send-interface-index', (something) => {
-        var session = snmp.createSession(something.ipAddress, something.community);
+        var options = {
+            port: something.port ? something.port : 161,
+            retries: something.retransmissions ? something.retransmissions : 1,
+            timeout: something.timeout ? something.timeout : 1000,
+            transport: "udp4",
+            trapPort: 162,
+            version: something.version ? something.version : snmp.Version2c,
+            idBitsSize: 16
+        };
+
+        var session = snmp.createSession(something.ipAddress, something.community, options);
         var infoOids = [
 
             // Porcentagem de Erro/Descartes de entrada
@@ -231,7 +251,17 @@ io.on('connection', (socket) => {
 });
 
 function hehe(deviceInfo) {
-    var session = snmp.createSession(deviceInfo.ipAddress, deviceInfo.community);
+    var options = {
+        port: deviceInfo.port ? deviceInfo.port : 161,
+        retries: deviceInfo.retransmissions ? deviceInfo.retransmissions : 1,
+        timeout: deviceInfo.timeout ? deviceInfo.timeout : 1000,
+        transport: "udp4",
+        trapPort: 162,
+        version: deviceInfo.version ? deviceInfo.version : snmp.Version2c,
+        idBitsSize: 16
+    };
+
+    var session = snmp.createSession(deviceInfo.ipAddress, deviceInfo.community, options);
     let qtd = ['1.3.6.1.2.1.2.1.0'];
     session.get(qtd, function (error, varbinds) {
         if (error) {
@@ -260,7 +290,17 @@ function hehe(deviceInfo) {
 }
 
 function haha(oids, deviceInfo) {
-    var session = snmp.createSession(deviceInfo.ipAddress, deviceInfo.community);
+    var options = {
+        port: deviceInfo.port ? deviceInfo.port : 161,
+        retries: deviceInfo.retransmissions ? deviceInfo.retransmissions : 1,
+        timeout: deviceInfo.timeout ? deviceInfo.timeout : 1000,
+        transport: "udp4",
+        trapPort: 162,
+        version: deviceInfo.version ? deviceInfo.version : snmp.Version2c,
+        idBitsSize: 16
+    };
+
+    var session = snmp.createSession(deviceInfo.ipAddress, deviceInfo.community, options);
     session.get(oids, function (error, varbinds) {
         if (error) {
             var errorSplit = error.message.split(': ');
