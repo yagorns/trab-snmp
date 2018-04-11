@@ -26,6 +26,7 @@
     "bootstrap": "^4.0.0",
     "core-js": "^2.4.1",
     "jquery": "^3.3.1",
+    "ng2modules-flot": "0.0.1",
     "ngx-mask": "^2.4.4",
     "rxjs": "^5.5.6",
     "socket.io-client": "^2.1.0",

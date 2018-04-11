@@ -3,6 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { NgModule } from '@angular/core';
 import { NgxMaskModule } from 'ngx-mask';
+import { FlotModule } from 'ng2modules-flot';
 
 import { AppComponent } from './app.component';
 import { DeviceComponent } from './device/device.component';
@@ -17,6 +18,7 @@ import { DeviceComponent } from './device/device.component';
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    FlotModule,
     NgxMaskModule.forRoot()
   ],
   providers: [],

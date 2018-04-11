@@ -127,6 +127,107 @@ io.on('connection', (socket) => {
                 console.error(error);
         });
     });
+    
+    socket.on('send-interface-index', (something) => {
+        var session = snmp.createSession(something.ipAddress, something.community);
+        var infoOids = [
+
+            // Porcentagem de Erro/Descartes de entrada
+            {
+                name: "ifInErrors",
+                oid: '1.3.6.1.2.1.2.2.1.14.' + something.interfaceNumber
+            },
+            {
+                name: "ifInDiscards",
+                oid: '1.3.6.1.2.1.2.2.1.13.' + something.interfaceNumber
+            },
+            {
+                name: "ifInUcastPkts",
+                oid: '1.3.6.1.2.1.2.2.1.11.' + something.interfaceNumber
+            },
+            {
+                name: "ifInNUcastPkts",
+                oid: '1.3.6.1.2.1.2.2.1.12.' + something.interfaceNumber
+            },
+            // Porcentagem de Erro/Descartes de saida
+            {
+                name: "ifOutErrors",
+                oid: '1.3.6.1.2.1.2.2.1.20.' + something.interfaceNumber
+            },
+            {
+                name: "ifOutDiscards",
+                oid: '1.3.6.1.2.1.2.2.1.19.' + something.interfaceNumber
+            },
+            {
+                name: "ifOutUcastPkts",
+                oid: '1.3.6.1.2.1.2.2.1.17.' + something.interfaceNumber
+            },
+            {
+                name: "ifOutNUcastPkts",
+                oid: '1.3.6.1.2.1.2.2.1.18.' + something.interfaceNumber
+            },
+            // Taxa de utilização
+            {
+                name: "ifInOctets",
+                oid: '1.3.6.1.2.1.2.2.1.10.' + something.interfaceNumber
+            },
+            {
+                name: "ifOutOctets",
+                oid: '1.3.6.1.2.1.2.2.1.16.' + something.interfaceNumber
+            },
+            {
+                name: "ifSpeed",
+                oid: '1.3.6.1.2.1.2.2.1.5.' + something.interfaceNumber
+            },
+        ];
+
+        session.get(infoOids.map(i => i.oid), (error, varbinds) => {
+            if (error) {
+                console.error(error);
+            } else {
+                var asd = [];
+                for (var i = 0; i < varbinds.length; i++) {
+                    if (snmp.isVarbindError(varbinds[i])) {
+                        console.error(snmp.varbindError(varbinds[i]))
+                    } else {
+                        asd.push({ oid: varbinds[i].oid, value: varbinds[i].value });
+                    }
+                }
+
+                var porcErrorIn = asd.find(a => a.oid === infoOids[0].oid).value / (asd.find(a => a.oid === infoOids[2].oid).value + asd.find(a => a.oid === infoOids[3].oid).value);
+                var porcErrorOut = asd.find(a => a.oid === infoOids[4].oid).value / (asd.find(a => a.oid === infoOids[6].oid).value + asd.find(a => a.oid === infoOids[7].oid).value);
+
+                var porcDiscardIn = asd.find(a => a.oid === infoOids[1].oid).value / (asd.find(a => a.oid === infoOids[2].oid).value + asd.find(a => a.oid === infoOids[3].oid).value);
+                var porcDiscardOut = asd.find(a => a.oid === infoOids[5].oid).value / (asd.find(a => a.oid === infoOids[6].oid).value + asd.find(a => a.oid === infoOids[7].oid).value);
+
+                var inOctets = asd.find(a => a.oid === infoOids[8].oid).value;
+                var outOctets = asd.find(a => a.oid === infoOids[9].oid).value;
+                var date = new Date();
+
+                var totalBytes = (inOctets - something.inOctets) + (outOctets - something.outOctets);
+                var totalBytesBySeconds = totalBytes / (Math.abs(date - new Date(something.date)) * 1000);
+                var totalBitsBySeconds = totalBytesBySeconds * 8;
+                var usageRate = totalBitsBySeconds / asd.find(a => a.oid === infoOids[10].oid).value;
+                
+                // console.log('\ntotalBytes: ' + totalBytes);
+                // console.log('totalBytesBySeconds: ' + totalBytesBySeconds);
+                // console.log('totalBitsBySeconds: ' + totalBitsBySeconds);
+                // console.log('usageRate: ' + usageRate);
+                // console.log('speed: ' + asd.find(a => a.oid === infoOids[10].oid).value)
+                
+                var options = {porcErrorIn, porcErrorOut, porcDiscardOut, porcDiscardIn, date, inOctets, outOctets, usageRate};
+                
+                io.emit('get-interface-usage-rate', options);
+            }
+
+            session.close();
+        });
+
+        session.trap(snmp.TrapType.LinkDown, function (error) {
+            if (error)
+                console.error(error);
+        });
+    });
 });
 
 function hehe(deviceInfo) {
