@@ -24,7 +24,12 @@
       ],
       "scripts": [
         "../node_modules/jquery/dist/jquery.min.js",
-        "../node_modules/bootstrap/dist/js/bootstrap.js"
+        "../node_modules/bootstrap/dist/js/bootstrap.js",
+        "../bower_components/Flot/jquery.flot.js",
+        "../bower_components/Flot/jquery.flot.pie.js",
+        "../bower_components/Flot/jquery.flot.resize.js",
+        "../bower_components/flot-spline/js/jquery.flot.spline.js",
+        "../bower_components/flot.tooltip/js/jquery.flot.tooltip.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {

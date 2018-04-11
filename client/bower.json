@@ -1,0 +1,22 @@
+{
+  "name": "trab-snmp",
+  "description": "Trabalho SNMP",
+  "main": "",
+  "authors": [
+    "Yago e João"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/yagoschimitz/trab-snmp",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "Flot": "flot#^0.8.3",
+    "flot-spline": "^0.8.2",
+    "flot.tooltip": "^0.9.0"
+  }
+}

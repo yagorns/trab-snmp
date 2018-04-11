@@ -13,6 +13,10 @@ export class DeviceService {
     this.socket.emit('send-interface-options', interfaceOptions);
   }
 
+  public sendInterfaceIndex(interfaceIndex): void {
+    this.socket.emit('send-interface-index', interfaceIndex);
+  }
+
   public getDeviceInfo(): any {
     let observable = new Observable(observer => {
       this.socket = io(this.url);
@@ -43,6 +47,19 @@ export class DeviceService {
     let observable = new Observable(observer => {
       this.socket = io(this.url);
       this.socket.on('get-interface-summary', (data) => {
+        observer.next(data);
+      });
+      return () => {
+        this.socket.disconnect();
+      }
+    })
+    return observable;
+  }
+
+  public getInterfaceUsageRate(): any {
+    let observable = new Observable(observer => {
+      this.socket = io(this.url);
+      this.socket.on('get-interface-usage-rate', (data) => {
         observer.next(data);
       });
       return () => {
