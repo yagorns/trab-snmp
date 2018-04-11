@@ -46,21 +46,24 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-10 form-group">
+                <div class="col-md-8 form-group">
                     <label>Interface</label>
                     <select class="form-control" formControlName="interface">
-                        <option *ngFor="let interface of interfaces" [value]="interface.value">{{ interface.name }}</option>
+                        <option [attr.selected]="i == 0 ? true : null" *ngFor="let interface of interfaces; let i = index" [value]="interface.oid">{{ interface.name }}</option>
                     </select>
                 </div>
                 <div class="col-md-2 form-group">
                     <label>Intervalo</label>
                     <input mask="0000" type="text" class="form-control" formControlName="interval">
                 </div>
+                <div class="col-md-2 form-group">
+                    <input style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="Buscar" (click)="sendInterfaceOptions()">
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label>Resumo da interface</label>
-                    <textarea readonly class="form-control" rows="3"></textarea>
+                    <textarea readonly class="form-control" rows="7">{{ interfaceSummary }}</textarea>
                 </div>
             </div>
         </div>

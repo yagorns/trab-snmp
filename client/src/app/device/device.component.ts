@@ -11,8 +11,9 @@ import { DeviceService } from './device.service';
 export class DeviceComponent implements OnInit, OnDestroy {
 
   public form: FormGroup;
-  public interfaces: object[];
   public deviceInfos: string = '';
+  public interfaces: any = [];
+  public interfaceSummary: string = '';
 
   private connection: any;
   
@@ -34,14 +35,24 @@ export class DeviceComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit() { 
-    this.connection = this.deviceService.getDeviceInfo().subscribe(deviceInfos => this.deviceInfos = deviceInfos.toString().replace(/,/g, '\n'));
+  sendInterfaceOptions() {
+    var formDeviceInfoValues = this.form.value.deviceInfo;
+    var interfaceSelected = this.form.value.interface.split('.');
+    var interfaceOptions = { 
+      ipAddress: formDeviceInfoValues.ipAddress, 
+      community: formDeviceInfoValues.community, 
+      interfaceNumber: interfaceSelected[interfaceSelected.length - 1] 
+    };
 
+    this.deviceService.sendInterfaceOptions(interfaceOptions);
+  }
+
+  ngOnInit() { 
     this.form = new FormGroup({
       deviceInfo: new FormGroup({
-        ipAddress: new FormControl('172.31.3.102', [Validators.required]),
+        ipAddress: new FormControl('192.168.15.14', [Validators.required]),
         port: new FormControl(0),
-        community: new FormControl('MorettoCommunity', [Validators.required]),
+        community: new FormControl('YagoCommunity', [Validators.required]),
         version: new FormControl(''),
         timeout: new FormControl(0),
         retransmissions: new FormControl(0),
@@ -50,24 +61,12 @@ export class DeviceComponent implements OnInit, OnDestroy {
       interval: new FormControl(0, [Validators.required]),
     });
 
-    this.interfaces = [
-      {
-        name: 'Item 1',
-        value: '1',
-      },
-      {
-        name: 'Item 2',
-        value: '2',
-      },
-      {
-        name: 'Item 3',
-        value: '3',
-      },
-      {
-        name: 'Item 4',
-        value: '4',
-      },
-    ];
+    this.connection = this.deviceService.getDeviceInfo().subscribe(deviceInfos => this.deviceInfos = deviceInfos.toString().replace(/,/g, '\n'));
+    this.connection = this.deviceService.getInterfaces().subscribe(interfaces => {
+      this.interfaces = interfaces;
+      this.form.controls.interface.setValue(this.interfaces.length ? this.interfaces[0].oid : null);
+    });    
+    this.connection = this.deviceService.getInterfaceSummary().subscribe(interfaceSummary => this.interfaceSummary = interfaceSummary.toString().replace(/,/g, '\n'));
   }
 
   ngOnDestroy() {
