@@ -45,7 +45,10 @@ io.on('connection', (socket) => {
 
         session.get(infos.map(info => info.oid), (error, varbinds) => {
             if (error) {
-                console.error(error);
+                var errorSplit = error.message.split(': ');
+                if (errorSplit[0] == 'Request timed out') {
+                    io.emit('get-device-summary', 'Dispositivo não encontrado.');
+                };
             } else {
                 for (var i = 0; i < varbinds.length; i++) {
                     if (snmp.isVarbindError(varbinds[i])) {

@@ -6,7 +6,8 @@ import { DeviceService } from './device.service';
 @Component({
   selector: 'app-device-info',
   templateUrl: './device.component.html',
-  providers: [DeviceService]
+  providers: [DeviceService],
+  styleUrls: ['./device.component.css'],
 })
 export class DeviceComponent implements OnInit, OnDestroy {
 
@@ -14,6 +15,8 @@ export class DeviceComponent implements OnInit, OnDestroy {
   public deviceInfos: string = '';
   public interfaces: any = [];
   public interfaceSummary: string = '';
+  public isLoadingInterface: boolean;
+  public isLoadingDevice: boolean;
 
   private connection: any;
 
@@ -21,6 +24,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
   sendDeviceOptions() {
     if (this.form.valid) {
+      this.deviceInfos = '';
+      this.interfaces = [];
+      this.isLoadingDevice = true;
       var formDeviceInfoValues = this.form.value.deviceInfo;
 
       this.deviceService.sendDeviceOptions({
@@ -35,7 +41,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
   }
 
   sendInterfaceOptions() {
-    if (this.deviceInfos) {
+    if (this.deviceInfos || this.deviceInfos === 'Dispositivo não encontrado') {
+      this.interfaceSummary = '';
+      this.isLoadingInterface = true;
       var formDeviceInfoValues = this.form.value.deviceInfo;
 
       var interfaceOptions = {
@@ -62,12 +70,19 @@ export class DeviceComponent implements OnInit, OnDestroy {
       interval: new FormControl(''),
     });
 
-    this.connection = this.deviceService.getDeviceInfo().subscribe(deviceInfos => this.deviceInfos = deviceInfos.toString().replace(/,/g, '\n'));
+    this.connection = this.deviceService.getDeviceInfo().subscribe(deviceInfos => { 
+      this.deviceInfos = deviceInfos.toString().replace(/,/g, '\n');
+      this.isLoadingDevice = false;
+    });
     this.connection = this.deviceService.getInterfaces().subscribe(interfaces => {
       this.interfaces = interfaces;
       this.form.controls.interface.setValue(this.interfaces.length ? this.interfaces[0].oid : null);
     });
-    this.connection = this.deviceService.getInterfaceSummary().subscribe(interfaceSummary => this.interfaceSummary = interfaceSummary.toString().replace(/,/g, '\n'));
+    this.connection = this.deviceService.getInterfaceSummary().subscribe(interfaceSummary => { 
+      this.interfaceSummary = interfaceSummary.toString().replace(/,/g, '\n');
+      this.isLoadingInterface = false;
+    });
+    
   }
 
   ngOnDestroy() {
