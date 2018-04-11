@@ -4,38 +4,43 @@
     <div class="card">
         <div class="card-body" formGroupName="deviceInfo">
             <div class="row">
-                <div class="col-md-2 form-group" style="padding-right: 0;">
+                <div class="col-md-2 form-group was-validated" style="padding-right: 0;">
                     <label>IP</label>
-                    <input type="text" class="form-control" formControlName="ipAddress">
+                    <input type="text" pattern="([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})" class="form-control" formControlName="ipAddress" required placeholder="Campo obrigatório">
                 </div>
                 <div class="col-md-1 form-group" style="padding-right: 0;">
                     <label>Porta</label>
-                    <input mask="00000" type="text" class="form-control" formControlName="port">
+                    <input mask="00000" type="text" class="form-control" formControlName="port" placeholder="161">
                 </div>
-                <div class="col-md-2 form-group" style="padding-right: 0;">
+                <div class="col-md-2 form-group was-validated" style="padding-right: 0;">
                     <label>Community</label>
-                    <input type="text" class="form-control" formControlName="community" maxlength="25">
+                    <input type="text" class="form-control" formControlName="community" maxlength="25" required placeholder="Campo obrigatório">
                 </div>
                 <div class="col-md-1 form-group" style="padding-right: 0;">
                     <label>Versão</label>
-                    <input type="text" class="form-control" formControlName="version" maxlength="4">
+                    <input type="text" class="form-control" formControlName="version" maxlength="4" placeholder="0">
                 </div>
                 <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>Timeout</label>
-                    <input mask="000000" type="text" class="form-control" formControlName="timeout">
+                    <input mask="000000" type="text" class="form-control" formControlName="timeout" placeholder="5000">
                 </div>
                 <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>Retransmissões</label>
-                    <input mask="0000" type="text" class="form-control" formControlName="retransmissions">
+                    <input mask="0000" type="text" class="form-control" formControlName="retransmissions" placeholder="1">
                 </div>
                 <div class="col-md-2 form-group">
-                    <input style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="Buscar" (click)="sendDeviceOptions()">
+                    <input style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="Buscar"
+                        (click)="sendDeviceOptions()">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="device-textarea-resume">Resumo do equipamento</label>
-                    <textarea readonly class="form-control" id="device-textarea-resume" rows="5">{{ deviceInfos }}</textarea>
+
+                    <div [ngClass]="{ 'loader': isLoadingDevice }"></div>
+                    <div [ngClass]="{ 'loader--fieldset': isLoadingDevice }">
+                        <textarea readonly class="form-control" id="device-textarea-resume" rows="5">{{ deviceInfos }}</textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -53,17 +58,21 @@
                     </select>
                 </div>
                 <div class="col-md-2 form-group">
-                    <label>Intervalo</label>
-                    <input mask="0000" type="text" class="form-control" formControlName="interval">
+                    <label>Intervalo (segundos)</label>
+                    <input mask="0000" type="text" class="form-control" formControlName="interval" placeholder="0">
                 </div>
                 <div class="col-md-2 form-group">
-                    <input style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="Buscar" (click)="sendInterfaceOptions()">
+                    <input style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="Buscar"
+                        (click)="sendInterfaceOptions()">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label>Resumo da interface</label>
-                    <textarea readonly class="form-control" rows="7">{{ interfaceSummary }}</textarea>
+                    <div [ngClass]="{ 'loader': isLoadingInterface }"></div>
+                    <div [ngClass]="{ 'loader--fieldset': isLoadingInterface }">
+                        <textarea readonly class="form-control" rows="7">{{ interfaceSummary }}</textarea>
+                    </div>
                 </div>
             </div>
         </div>
