@@ -3,7 +3,6 @@
 let app = require('express')();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
-var Uint64BE = require("int64-buffer").Uint64BE
 var snmp = require("net-snmp");
 
 io.on('connection', (socket) => {

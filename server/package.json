@@ -4,10 +4,7 @@
   "description": "socket.io server",
   "dependencies": {
     "express": "^4.13.4",
-    "socket.io": "^1.4.6",
-    "net-snmp": "^1.2.2"
-  },
-  "devDependencies": {
-    "int64-buffer": "^0.1.10"
+    "net-snmp": "^1.2.2",
+    "socket.io": "^1.4.6"
   }
 }
