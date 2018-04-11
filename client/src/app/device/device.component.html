@@ -48,8 +48,8 @@
             <div class="row">
                 <div class="col-md-10 form-group">
                     <label>Interface</label>
-                    <select class="form-control" formControlName="interface">
-                        <option *ngFor="let interface of interfaces" [value]="interface.value">{{ interface.name }}</option>
+                    <select class="form-control" (ngModelChange)="onChange($event)" formControlName="interface">
+                        <option [attr.selected]="i == 0 ? true : null" *ngFor="let interface of interfaces; let i = index" [value]="interface.oid">{{ interface.name }}</option>
                     </select>
                 </div>
                 <div class="col-md-2 form-group">
