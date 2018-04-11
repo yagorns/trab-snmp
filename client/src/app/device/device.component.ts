@@ -13,6 +13,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
   public form: FormGroup;
   public deviceInfos: string = '';
   public interfaces: any = [];
+  public interfaceSummary: string = '';
 
   private connection: any;
   
@@ -34,6 +35,18 @@ export class DeviceComponent implements OnInit, OnDestroy {
     });
   }
 
+  sendInterfaceOptions() {
+    var formDeviceInfoValues = this.form.value.deviceInfo;
+    var interfaceSelected = this.form.value.interface.split('.');
+    var interfaceOptions = { 
+      ipAddress: formDeviceInfoValues.ipAddress, 
+      community: formDeviceInfoValues.community, 
+      interfaceNumber: interfaceSelected[interfaceSelected.length - 1] 
+    };
+
+    this.deviceService.sendInterfaceOptions(interfaceOptions);
+  }
+
   ngOnInit() { 
     this.form = new FormGroup({
       deviceInfo: new FormGroup({
@@ -52,11 +65,8 @@ export class DeviceComponent implements OnInit, OnDestroy {
     this.connection = this.deviceService.getInterfaces().subscribe(interfaces => {
       this.interfaces = interfaces;
       this.form.controls.interface.setValue(this.interfaces.length ? this.interfaces[0].oid : null);
-    });
-  }
-
-  onChange(deviceValue) {
-    console.log(deviceValue);
+    });    
+    this.connection = this.deviceService.getInterfaceSummary().subscribe(interfaceSummary => this.interfaceSummary = interfaceSummary.toString().replace(/,/g, '\n'));
   }
 
   ngOnDestroy() {

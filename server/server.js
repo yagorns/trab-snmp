@@ -3,6 +3,7 @@
 let app = require('express')();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
+var Uint64BE = require("int64-buffer").Uint64BE
 var snmp = require("net-snmp");
 
 io.on('connection', (socket) => {
@@ -51,6 +52,42 @@ io.on('connection', (socket) => {
       
           // If done, close the session
           session.close ();
+      });
+      
+      session.trap (snmp.TrapType.LinkDown, function (error) {
+          if (error)
+              console.error (error);
+      });
+    });
+
+    socket.on('send-interface-options', (something) => {
+      var session = snmp.createSession(something.ipAddress, something.community);
+      var infoOids = 
+      [{ name: "Velocidade", oid: '1.3.6.1.2.1.2.2.1.5.' + something.interfaceNumber },
+      { name: "Status do administrador", oid: '1.3.6.1.2.1.2.2.1.7.' + something.interfaceNumber },
+      { name: "Descrição", oid: '1.3.6.1.2.1.2.2.1.2.' + something.interfaceNumber },
+      { name: "Endereço MAC", oid: '1.3.6.1.2.1.2.2.1.6.' + something.interfaceNumber },
+      { name: "Operacional", oid: '1.3.6.1.2.1.2.2.1.8.' + something.interfaceNumber },
+      { name: "Tipo", oid: '1.3.6.1.2.1.2.2.1.3.' + something.interfaceNumber },
+      { name: "Indice", oid: '1.3.6.1.2.1.2.2.1.2.' + something.interfaceNumber }];
+
+      session.get(infoOids.map(i => i.oid), (error, varbinds) => {
+          if (error) {
+              console.error (error);
+          } else {
+                var asd = [];
+              for (var i = 0; i < varbinds.length; i++) {
+                  if (snmp.isVarbindError (varbinds[i])) {
+                      console.error (snmp.varbindError (varbinds[i]))
+                  } else {
+                      asd.push(infoOids[i].name.concat(": ").concat(varbinds[i].value));
+                  }
+              }
+  
+              io.emit('get-interface-summary', asd);
+          }
+      
+          session.close();
       });
       
       session.trap (snmp.TrapType.LinkDown, function (error) {
