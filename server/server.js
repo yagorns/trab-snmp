@@ -8,105 +8,135 @@ var snmp = require("net-snmp");
 
 io.on('connection', (socket) => {
     socket.on('send-device-options', (deviceInfo) => {
-      var session = snmp.createSession(deviceInfo.ipAddress, deviceInfo.community);
-      
-      var infos = [
-          {
-              name: "Contato",
-              oid: "1.3.6.1.2.1.1.4.0",
-          },
-          {
-              name: "Nome",
-              oid: "1.3.6.1.2.1.1.5.0",
-          },
-          {
-              name: "Localização",
-              oid: "1.3.6.1.2.1.1.6.0",
-          },
-          {
-              name: "Descrição",
-              oid: "1.3.6.1.2.1.1.1.0",
-          },
-          {
-              name: "Tempo ligado",
-              oid: "1.3.6.1.2.1.1.3.0",
-          },
-      ];
-      var infoOids = [];
-      
-      session.get(infos.map(info => info.oid), (error, varbinds) => {
-          if (error) {
-              console.error (error);
-          } else {
-              for (var i = 0; i < varbinds.length; i++) {
-                  if (snmp.isVarbindError (varbinds[i])) {
-                      console.error (snmp.varbindError (varbinds[i]))
-                  } else {
-                      infoOids.push(infos[i].name.concat(": ").concat(varbinds[i].value));
-                  }
-              }
-  
-              io.emit('get-device-summary', infoOids);
-              hehe(deviceInfo);
-          }
-      
-          // If done, close the session
-          session.close ();
-      });
-      
-      session.trap (snmp.TrapType.LinkDown, function (error) {
-          if (error)
-              console.error (error);
-      });
+        var options = {
+            port: deviceInfo.port ? deviceInfo.port : 161,
+            retries: deviceInfo.retransmissions ? deviceInfo.retransmissions : 1,
+            timeout: deviceInfo.timeout ? deviceInfo.timeout : 5000,
+            transport: "udp4",
+            trapPort: 162,
+            version: deviceInfo.version ? deviceInfo.retransmissions : snmp.Version1,
+            idBitsSize: 16
+        };
+
+        var session = snmp.createSession(deviceInfo.ipAddress, deviceInfo.community, options);
+
+        var infos = [{
+                name: "Contato",
+                oid: "1.3.6.1.2.1.1.4.0",
+            },
+            {
+                name: "Nome",
+                oid: "1.3.6.1.2.1.1.5.0",
+            },
+            {
+                name: "Localização",
+                oid: "1.3.6.1.2.1.1.6.0",
+            },
+            {
+                name: "Descrição",
+                oid: "1.3.6.1.2.1.1.1.0",
+            },
+            {
+                name: "Tempo ligado",
+                oid: "1.3.6.1.2.1.1.3.0",
+            },
+        ];
+        var infoOids = [];
+
+        session.get(infos.map(info => info.oid), (error, varbinds) => {
+            if (error) {
+                console.error(error);
+            } else {
+                for (var i = 0; i < varbinds.length; i++) {
+                    if (snmp.isVarbindError(varbinds[i])) {
+                        console.error(snmp.varbindError(varbinds[i]))
+                    } else {
+                        infoOids.push(infos[i].name.concat(": ").concat(varbinds[i].value));
+                    }
+                }
+
+                io.emit('get-device-summary', infoOids);
+                hehe(deviceInfo);
+            }
+
+            // If done, close the session
+            session.close();
+        });
+
+        session.trap(snmp.TrapType.LinkDown, function (error) {
+            if (error)
+                console.error(error);
+        });
     });
 
     socket.on('send-interface-options', (something) => {
-      var session = snmp.createSession(something.ipAddress, something.community);
-      var infoOids = 
-      [{ name: "Velocidade", oid: '1.3.6.1.2.1.2.2.1.5.' + something.interfaceNumber },
-      { name: "Status do administrador", oid: '1.3.6.1.2.1.2.2.1.7.' + something.interfaceNumber },
-      { name: "Descrição", oid: '1.3.6.1.2.1.2.2.1.2.' + something.interfaceNumber },
-      { name: "Endereço MAC", oid: '1.3.6.1.2.1.2.2.1.6.' + something.interfaceNumber },
-      { name: "Operacional", oid: '1.3.6.1.2.1.2.2.1.8.' + something.interfaceNumber },
-      { name: "Tipo", oid: '1.3.6.1.2.1.2.2.1.3.' + something.interfaceNumber },
-      { name: "Indice", oid: '1.3.6.1.2.1.2.2.1.2.' + something.interfaceNumber }];
+        var session = snmp.createSession(something.ipAddress, something.community);
+        var infoOids = [{
+                name: "Velocidade",
+                oid: '1.3.6.1.2.1.2.2.1.5.' + something.interfaceNumber
+            },
+            {
+                name: "Status do administrador",
+                oid: '1.3.6.1.2.1.2.2.1.7.' + something.interfaceNumber
+            },
+            {
+                name: "Descrição",
+                oid: '1.3.6.1.2.1.2.2.1.2.' + something.interfaceNumber
+            },
+            {
+                name: "Endereço MAC",
+                oid: '1.3.6.1.2.1.2.2.1.6.' + something.interfaceNumber
+            },
+            {
+                name: "Operacional",
+                oid: '1.3.6.1.2.1.2.2.1.8.' + something.interfaceNumber
+            },
+            {
+                name: "Tipo",
+                oid: '1.3.6.1.2.1.2.2.1.3.' + something.interfaceNumber
+            },
+            {
+                name: "Indice",
+                oid: '1.3.6.1.2.1.2.2.1.2.' + something.interfaceNumber
+            }
+        ];
 
-      session.get(infoOids.map(i => i.oid), (error, varbinds) => {
-          if (error) {
-              console.error (error);
-          } else {
+        session.get(infoOids.map(i => i.oid), (error, varbinds) => {
+            if (error) {
+                console.error(error);
+            } else {
                 var asd = [];
-              for (var i = 0; i < varbinds.length; i++) {
-                  if (snmp.isVarbindError (varbinds[i])) {
-                      console.error (snmp.varbindError (varbinds[i]))
-                  } else {
-                      asd.push(infoOids[i].name.concat(": ").concat(varbinds[i].value));
-                  }
-              }
-  
-              io.emit('get-interface-summary', asd);
-          }
-      
-          session.close();
-      });
-      
-      session.trap (snmp.TrapType.LinkDown, function (error) {
-          if (error)
-              console.error (error);
-      });
+                for (var i = 0; i < varbinds.length; i++) {
+                    if (snmp.isVarbindError(varbinds[i])) {
+                        console.error(snmp.varbindError(varbinds[i]))
+                    } else {
+                        asd.push(infoOids[i].name.concat(": ").concat(varbinds[i].value));
+                    }
+                }
+
+                io.emit('get-interface-summary', asd);
+            }
+
+            session.close();
+        });
+
+        session.trap(snmp.TrapType.LinkDown, function (error) {
+            if (error)
+                console.error(error);
+        });
     });
 });
 
 function hehe(deviceInfo) {
     var session = snmp.createSession(deviceInfo.ipAddress, deviceInfo.community);
-    let qtd = [ '1.3.6.1.2.1.2.1.0' ];
+    let qtd = ['1.3.6.1.2.1.2.1.0'];
     session.get(qtd, function (error, varbinds) {
         if (error) {
             console.log(error);
         } else {
             for (var i = 0; i < varbinds.length; i++)
-                if (snmp.isVarbindError (varbinds[i])) {
-                    console.error (snmp.varbindError (varbinds[i]))
+                if (snmp.isVarbindError(varbinds[i])) {
+                    console.error(snmp.varbindError(varbinds[i]))
                 } else {
                     var interfaceNamesOids = [];
                     for (var x = 1; x < varbinds[i].value; x++) {
@@ -117,12 +147,12 @@ function hehe(deviceInfo) {
         }
 
         // If done, close the session
-        session.close ();
+        session.close();
     });
 
-    session.trap (snmp.TrapType.LinkDown, function (error) {
+    session.trap(snmp.TrapType.LinkDown, function (error) {
         if (error)
-            console.error (error);
+            console.error(error);
     });
 }
 
@@ -131,17 +161,20 @@ function haha(oids, deviceInfo) {
     session.get(oids, function (error, varbinds) {
         if (error) {
             var errorSplit = error.message.split(': ');
-            if(errorSplit[0] == 'NoSuchName') {
+            if (errorSplit[0] == 'NoSuchName') {
                 oids.splice(oids.indexOf(errorSplit[1]), 1);
                 haha(oids, deviceInfo);
             };
         } else {
             var arr = [];
             for (var i = 0; i < varbinds.length; i++) {
-                if (snmp.isVarbindError (varbinds[i])) {
-                    console.error (snmp.varbindError (varbinds[i]));
+                if (snmp.isVarbindError(varbinds[i])) {
+                    console.error(snmp.varbindError(varbinds[i]));
                 } else {
-                    arr.push({ oid: varbinds[i].oid, name: varbinds[i].value.toString() });
+                    arr.push({
+                        oid: varbinds[i].oid,
+                        name: varbinds[i].value.toString()
+                    });
                 }
             }
         }
@@ -150,9 +183,9 @@ function haha(oids, deviceInfo) {
         // If done, close the session
     });
 
-    session.trap (snmp.TrapType.LinkDown, function (error) {
+    session.trap(snmp.TrapType.LinkDown, function (error) {
         if (error)
-            console.error (error);
+            console.error(error);
     });
 }
 
