@@ -87,21 +87,21 @@
             <div class="row">
                 <div *ngIf="interfaceUsageRate" class="col-md-12">
 
-                    <flot [refresh]="isLoadingFloat" [options]="options" [dataset]="dataset" height="550px" width="100%"></flot>
+                    <flot [refresh]="isLoadingFloat" [options]="options" [dataset]="dataset" height="300px" width="100%"></flot>
 
                     <br>
                     <span class="text-muted">Porcentagem de
                         <b>erro:</b><br>
                         &emsp;Entrada: {{ (interfaceUsageRate?.porcErrorIn ? interfaceUsageRate?.porcErrorIn + '%' :
-                        '-' ) }} <br> 
-                        &emsp;Saida: {{ (interfaceUsageRate?.porcErrorOut ? interfaceUsageRate?.porcErrorOut + '%' : '-') }}</span>
+                        '0%' ) }} <br> 
+                        &emsp;Saida: {{ (interfaceUsageRate?.porcErrorOut ? interfaceUsageRate?.porcErrorOut + '%' : '0%') }}</span>
                     <br>
                     <br>
                     <span class="text-muted">Porcentagem de
                         <b>descarte:</b><br>
                         &emsp;Entrada: {{ (interfaceUsageRate?.porcDiscardIn ? interfaceUsageRate?.porcDiscardIn + '%'
-                        : '-')}} <br>
-                        &emsp;Saída:  {{ (interfaceUsageRate?.porcDiscardOut ? interfaceUsageRate?.porcDiscardOut + '%' : '-')
+                        : '0%')}} <br>
+                        &emsp;Saída:  {{ (interfaceUsageRate?.porcDiscardOut ? interfaceUsageRate?.porcDiscardOut + '%' : '0%')
                         }}
                     </span>
                 </div>

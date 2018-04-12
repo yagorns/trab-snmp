@@ -25,7 +25,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
       points: {
         radius: 3,
         show: true
-      }
+      },
     }
   };
 
@@ -81,9 +81,10 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
     this.deviceService.sendInterfaceOptions(interfaceOptions);
     
-    this.sendInterfaceIndex();
     if (this.form.value.interval) {
       this.connectionInterface = IntervalObservable.create(this.form.value.interval * 1000).subscribe(() => { this.isLoadingFloat = true; this.sendInterfaceIndex() } );
+    } else {
+      this.sendInterfaceIndex();
     }
   }
 
@@ -110,9 +111,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
     this.form = new FormGroup({
       deviceInfo: new FormGroup({
-        ipAddress: new FormControl('192.168.15.14', [Validators.required]),
+        ipAddress: new FormControl('172.31.3.102', [Validators.required]),
         port: new FormControl(''),
-        community: new FormControl('YagoCommunity', [Validators.required]),
+        community: new FormControl('MorettoCommunity', [Validators.required]),
         version: new FormControl(''),
         timeout: new FormControl(''),
         retransmissions: new FormControl(''),
