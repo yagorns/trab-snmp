@@ -53,7 +53,10 @@ io.on('connection', (socket) => {
                     if (snmp.isVarbindError(varbinds[i])) {
                         console.error(snmp.varbindError(varbinds[i]))
                     } else {
-                        infoOids.push(infos[i].name.concat(": ").concat(varbinds[i].value));
+                        var oidValue = (varbinds[i].type === 4) ? varbinds[i].value.toString('binary') : varbinds[i].value;
+                        oidValue = (varbinds[i].type === 67) ? (((oidValue / 100).toFixed()).toString().concat(' segundos')) : oidValue;
+                        
+                        infoOids.push(infos[i].name.concat(": ").concat(oidValue));
                     }
                 }
 
@@ -122,7 +125,27 @@ io.on('connection', (socket) => {
                     if (snmp.isVarbindError(varbinds[i])) {
                         console.error(snmp.varbindError(varbinds[i]))
                     } else {
-                        asd.push(infoOids[i].name.concat(": ").concat(varbinds[i].value));
+                        var valueOid = varbinds[i].value;
+
+                        if(infoOids[i].name === 'Endereço MAC') {
+                            if(valueOid.toString()) {
+                                valueOid = valueOid.toString('hex').toUpperCase();
+                                if (!(valueOid.includes('.') || valueOid.includes(':') || valueOid.includes('-'))) {
+                                    for(var x = 2; x < valueOid.length; x = x + 2)
+                                    {
+                                        valueOid = [valueOid.slice(0, x), "-", valueOid.slice(x)].join('');
+                                        x++;
+                                    }
+                                }
+                            } else {
+                                valueOid = '-'
+                            }
+                        } else {
+                            if (Buffer.isBuffer(valueOid)) {
+                                valueOid = valueOid.toString().slice(0, valueOid.length - 1);
+                            } 
+                        }
+                        asd.push(infoOids[i].name.concat(": ").concat(valueOid));
                     }
                 }
 
@@ -210,6 +233,7 @@ io.on('connection', (socket) => {
                     if (snmp.isVarbindError(varbinds[i])) {
                         console.error(snmp.varbindError(varbinds[i]))
                     } else {
+                        console.log(infoOids[i].name + ': ' + snmp.ObjectType[varbinds[i].type] + ': ' + varbinds[i].value)
                         asd.push({ oid: varbinds[i].oid, value: varbinds[i].value });
                     }
                 }
@@ -316,7 +340,7 @@ function haha(oids, deviceInfo) {
                 } else {
                     arr.push({
                         oid: varbinds[i].oid,
-                        name: varbinds[i].value.toString()
+                        name: varbinds[i].value.toString('binary')
                     });
                 }
             }
