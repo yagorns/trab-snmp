@@ -52,19 +52,19 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-8 form-group">
+                <div class="col-md-7 form-group" style="padding-right: 0;">
                     <label>Interface</label>
                     <select (ngModelChange)="objChanged($event)" class="form-control" formControlName="interface">
                         <option [attr.selected]="i == 0 ? true : null" *ngFor="let interface of interfaces; let i = index" [value]="interface.oid">{{ interface.name }}</option>
                     </select>
                 </div>
-                <div class="col-md-2 form-group">
+                <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>Intervalo (segundos)</label>
                     <input mask="0000" type="text" class="form-control" formControlName="interval" placeholder="0">
                 </div>
-                <div class="col-md-2 form-group">
+                <div class="col-md-3 form-group">
                     <input [disabled]="!deviceInfos || deviceInfos === 'Dispositivo não encontrado.' || isLoadingInterface || !interfaces" style="position: absolute; bottom: 0; width: 82%;"
-                        class="btn btn-primary btn-block" type="button" value="{{ 'Buscar' }}"
+                        class="btn btn-primary btn-block" type="button" value="{{ !connectionInterface ? 'Monitorar interface' : 'Parar de monitorar interface' }}"
                         (click)="sendInterfaceOptions()">
                 </div>
             </div>
@@ -86,8 +86,21 @@
         <div class="card-body">
             <div class="row">
                 <div *ngIf="interfaceUsageRate" class="col-md-12">
-
-                    <flot [refresh]="isLoadingFloat" [options]="options" [dataset]="dataset" height="300px" width="100%"></flot>
+                    <div style="display: block;">
+                        <canvas baseChart #baseChart="base-chart" width="400" height="180"
+                            [datasets]="datasets"
+                            [labels]="labels"
+                            [options]="options"
+                            [chartType]="'line'"
+                            [colors]="[{
+                            borderColor: '#90c0db',
+                            backgroundColor: '#a0d3ef',
+                            pointBackgroundColor: '#949fb1',
+                            pointBorderColor: '#dbe8fc',
+                            pointHoverBackgroundColor: '#dbe8fc',
+                            pointHoverBorderColor: '#949fb1'
+                            }]"></canvas>
+                        </div>
 
                     <br>
                     <span class="text-muted">Porcentagem de
@@ -105,7 +118,7 @@
                         }}
                     </span>
                 </div>
-                <div *ngIf="!interfaceUsageRate" class="col-md-12">Selecione uma interface.</div>
+                <div *ngIf="!interfaceUsageRate" class="col-md-12">{{ !connectionInterface ? 'Selecione uma interface.' : (interfaceUsageRate ? '' : 'Carregando...') }}</div>
             </div>
         </div>
     </div>

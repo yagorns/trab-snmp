@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { IntervalObservable } from "rxjs/observable/IntervalObservable";
 
 import { DeviceService } from './device.service';
+import { BaseChartDirective } from 'ng2-charts/charts/charts';
 
 @Component({
   selector: 'app-device-info',
@@ -17,16 +18,28 @@ export class DeviceComponent implements OnInit, OnDestroy {
   public interfaces: any = [];
   public interfaceSummary: string = '';
   public interfaceUsageRate: any;
-  public dataset: any = [];
+  public datasets: any = [];
   public datasetData: any = [];
+  public labels: any = [];
   public options: any = {
-    series: {
-      lines: { show: true },
-      points: {
-        radius: 3,
-        show: true
-      },
-    }
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    },
+    // Remove as opções de cima
+    legend: {
+        display: false,
+        labels: {
+            fontColor: 'rgb(255, 99, 132)'
+        }
+    },
+    title: {
+        display: true,
+        text: 'Taxa de Utilização'
+    },
   };
 
   public isLoadingFloat: boolean;
@@ -35,6 +48,8 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
   private connection: any;
   private connectionInterface: any;
+
+  @ViewChild("baseChart") chart: BaseChartDirective;
 
   constructor(private deviceService: DeviceService) { }
 
@@ -47,11 +62,12 @@ export class DeviceComponent implements OnInit, OnDestroy {
     this.interfaces = [];
     this.interfaceSummary = '';
     this.datasetData = [];
+    this.interfaceUsageRate = undefined;
     this.isLoadingDevice = true;
     this.isLoadingInterface = true;
     if (this.connectionInterface) {
       this.connectionInterface.unsubscribe();
-      this.isLoadingFloat = true;
+      this.refreshChart();
     }
     var formDeviceInfoValues = this.form.value.deviceInfo;
 
@@ -66,25 +82,15 @@ export class DeviceComponent implements OnInit, OnDestroy {
   }
 
   sendInterfaceOptions() {
-    this.isLoadingInterface = true;
-    var formDeviceInfoValues = this.form.value.deviceInfo;
-
-    var interfaceOptions = {
-      ipAddress: formDeviceInfoValues.ipAddress,
-      community: formDeviceInfoValues.community,
-      port: formDeviceInfoValues.port,
-      retries: formDeviceInfoValues.retransmissions,
-      timeout: formDeviceInfoValues.timeout,
-      version: formDeviceInfoValues.version,
-      interfaceNumber: this.form.value.interface.split('.')[this.form.value.interface.split('.').length - 1]
-    };
-
-    this.deviceService.sendInterfaceOptions(interfaceOptions);
-    
-    if (this.form.value.interval) {
-      this.connectionInterface = IntervalObservable.create(this.form.value.interval * 1000).subscribe(() => { this.isLoadingFloat = true; this.sendInterfaceIndex() } );
+    if (!this.connectionInterface) {
+      if (this.form.value.interval) {
+        this.connectionInterface = IntervalObservable.create(this.form.value.interval * 1000).subscribe(() => { this.sendInterfaceIndex() } );
+      } else {
+        this.sendInterfaceIndex();
+      }
     } else {
-      this.sendInterfaceIndex();
+      this.connectionInterface.unsubscribe();
+      this.connectionInterface = undefined;
     }
   }
 
@@ -136,30 +142,69 @@ export class DeviceComponent implements OnInit, OnDestroy {
       this.isLoadingInterface = false;
     });
     this.connection = this.deviceService.getInterfaceUsageRate().subscribe(interfaceUsageRate => { 
-      this.interfaceUsageRate = interfaceUsageRate;
-      this.datasetData.push([(this.datasetData.length + 1), (interfaceUsageRate.usageRate ? interfaceUsageRate.usageRate : 0) ]);
-
-      if (!this.dataset.length) {
-        this.dataset.push({ label: 'Taxa de utilização', data: this.datasetData });
-      } else {
-        this.dataset[0].data = this.datasetData;
+      if (this.labels.length == 15) {
+        this.labels.shift();
+        this.datasets[0].data.shift();
       }
-      this.isLoadingFloat = false;
+
+      this.interfaceUsageRate = interfaceUsageRate;
+
+      const date = new Date(interfaceUsageRate.date)
+      const label: string = ("0" + date.getHours()).slice(-2) + ":" + 
+                            ("0" + date.getMinutes()).slice(-2) + ":" + 
+                            ("0" + date.getSeconds()).slice(-2);
+      
+      this.labels.push(label);
+
+
+      this.datasetData.push(interfaceUsageRate.usageRate ? interfaceUsageRate.usageRate : 0);
+
+      if (!this.datasets.length) {
+        this.datasets.push({ label: 'Taxa de utilização', data: this.datasetData });
+      } else {
+        this.datasets[0].data = this.datasetData;
+        this.refreshChart();
+      }
     });
   }
 
   objChanged(event) {
-    if(this.dataset.length) { this.dataset[0].data = []; }
+    this.interfaceUsageRate = undefined;
+    this.labels = [];
+    if(this.datasets.length) { this.datasets[0].data = []; }
     this.datasetData = [];
     if (this.connectionInterface) {
       this.connectionInterface.unsubscribe();
-      this.isLoadingFloat = true;
+      this.connectionInterface = undefined;
+      this.refreshChart();
     }
     this.interfaceSummary = '';
     this.form.controls.interval.setValue('');
+    
+    this.isLoadingInterface = true;
+    var formDeviceInfoValues = this.form.value.deviceInfo;
+
+    var interfaceOptions = {
+      ipAddress: formDeviceInfoValues.ipAddress,
+      community: formDeviceInfoValues.community,
+      port: formDeviceInfoValues.port,
+      retries: formDeviceInfoValues.retransmissions,
+      timeout: formDeviceInfoValues.timeout,
+      version: formDeviceInfoValues.version,
+      interfaceNumber: this.form.value.interface.split('.')[this.form.value.interface.split('.').length - 1]
+    };
+
+    this.deviceService.sendInterfaceOptions(interfaceOptions);
   }
 
   ngOnDestroy() {
     this.connection.unsubscribe();
+  }
+
+  refreshChart() {
+    if (this.chart) {
+      this.chart.ngOnDestroy();
+      this.chart.chart = this.chart.getChartBuilder(this.chart.ctx);
+    }
   }
 }

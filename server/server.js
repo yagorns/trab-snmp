@@ -252,12 +252,18 @@ io.on('connection', (socket) => {
                 var totalBytesBySeconds = totalBytes / secondsBetweenDates;
                 var totalBitsBySeconds = totalBytesBySeconds * 8;
                 var usageRate = (secondsBetweenDates >= 0.5) ? (totalBitsBySeconds / asd.find(a => a.oid === infoOids[10].oid).value).toFixed(4) : 0;
-                console.log(Number.isNaN(parseFloat(usageRate)));
-                usageRate = Number.isNaN(parseFloat(usageRate)) ? 0 : usageRate;
                 
-                
+                usageRate = Number.isNaN(parseFloat(usageRate)) ? 0.0 : usageRate;
+
+                porcErrorIn = Number.isNaN(parseFloat(porcErrorIn)) ? 0.00 : porcErrorIn;
+                porcErrorOut = Number.isNaN(parseFloat(porcErrorOut)) ? 0.00 : porcErrorOut;
+                porcDiscardOut = Number.isNaN(parseFloat(porcDiscardOut)) ? 0.00 : porcDiscardOut;
+                porcDiscardIn = Number.isNaN(parseFloat(porcDiscardIn)) ? 0.00 : porcDiscardIn;
+
                 var options = {porcErrorIn, porcErrorOut, porcDiscardOut, porcDiscardIn, date, inOctets, outOctets, usageRate};
                 
+                console.log(options);
+
                 io.emit('get-interface-usage-rate', options);
             }
 
