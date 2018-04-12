@@ -233,34 +233,37 @@ io.on('connection', (socket) => {
                     if (snmp.isVarbindError(varbinds[i])) {
                         console.error(snmp.varbindError(varbinds[i]))
                     } else {
-                        console.log(infoOids[i].name + ': ' + snmp.ObjectType[varbinds[i].type] + ': ' + varbinds[i].value)
                         asd.push({ oid: varbinds[i].oid, value: varbinds[i].value });
                     }
                 }
 
-                var porcErrorIn = asd.find(a => a.oid === infoOids[0].oid).value / (asd.find(a => a.oid === infoOids[2].oid).value + asd.find(a => a.oid === infoOids[3].oid).value);
-                var porcErrorOut = asd.find(a => a.oid === infoOids[4].oid).value / (asd.find(a => a.oid === infoOids[6].oid).value + asd.find(a => a.oid === infoOids[7].oid).value);
+                var porcErrorIn = (asd.find(a => a.oid === infoOids[0].oid).value / (asd.find(a => a.oid === infoOids[2].oid).value + asd.find(a => a.oid === infoOids[3].oid).value)).toFixed(2);
+                var porcErrorOut = (asd.find(a => a.oid === infoOids[4].oid).value / (asd.find(a => a.oid === infoOids[6].oid).value + asd.find(a => a.oid === infoOids[7].oid).value)).toFixed(2);
 
-                var porcDiscardIn = asd.find(a => a.oid === infoOids[1].oid).value / (asd.find(a => a.oid === infoOids[2].oid).value + asd.find(a => a.oid === infoOids[3].oid).value);
-                var porcDiscardOut = asd.find(a => a.oid === infoOids[5].oid).value / (asd.find(a => a.oid === infoOids[6].oid).value + asd.find(a => a.oid === infoOids[7].oid).value);
+                var porcDiscardIn = (asd.find(a => a.oid === infoOids[1].oid).value / (asd.find(a => a.oid === infoOids[2].oid).value + asd.find(a => a.oid === infoOids[3].oid).value)).toFixed(2);
+                var porcDiscardOut = (asd.find(a => a.oid === infoOids[5].oid).value / (asd.find(a => a.oid === infoOids[6].oid).value + asd.find(a => a.oid === infoOids[7].oid).value)).toFixed(2);
 
                 var inOctets = asd.find(a => a.oid === infoOids[8].oid).value;
                 var outOctets = asd.find(a => a.oid === infoOids[9].oid).value;
                 var date = new Date();
 
                 var totalBytes = (inOctets - something.inOctets) + (outOctets - something.outOctets);
-                var totalBytesBySeconds = totalBytes / (Math.abs(date - new Date(something.date)) * 1000);
+                var secondsBetweenDates = Math.abs(((date.getTime() - new Date(something.date).getTime()) / 1000));
+                var totalBytesBySeconds = totalBytes / secondsBetweenDates;
                 var totalBitsBySeconds = totalBytesBySeconds * 8;
-                var usageRate = totalBitsBySeconds / asd.find(a => a.oid === infoOids[10].oid).value;
+                var usageRate = (secondsBetweenDates >= 0.5) ? (totalBitsBySeconds / asd.find(a => a.oid === infoOids[10].oid).value).toFixed(4) : 0;
                 
-                // console.log('\ntotalBytes: ' + totalBytes);
-                // console.log('totalBytesBySeconds: ' + totalBytesBySeconds);
-                // console.log('totalBitsBySeconds: ' + totalBitsBySeconds);
-                // console.log('usageRate: ' + usageRate);
-                // console.log('speed: ' + asd.find(a => a.oid === infoOids[10].oid).value)
-                
+                usageRate = Number.isNaN(parseFloat(usageRate)) ? 0.0 : usageRate;
+
+                porcErrorIn = Number.isNaN(parseFloat(porcErrorIn)) ? 0.00 : porcErrorIn;
+                porcErrorOut = Number.isNaN(parseFloat(porcErrorOut)) ? 0.00 : porcErrorOut;
+                porcDiscardOut = Number.isNaN(parseFloat(porcDiscardOut)) ? 0.00 : porcDiscardOut;
+                porcDiscardIn = Number.isNaN(parseFloat(porcDiscardIn)) ? 0.00 : porcDiscardIn;
+
                 var options = {porcErrorIn, porcErrorOut, porcDiscardOut, porcDiscardIn, date, inOctets, outOctets, usageRate};
                 
+                console.log(options);
+
                 io.emit('get-interface-usage-rate', options);
             }
 
