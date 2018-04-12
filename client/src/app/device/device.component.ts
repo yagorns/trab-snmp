@@ -48,6 +48,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
     this.interfaceSummary = '';
     this.datasetData = [];
     this.isLoadingDevice = true;
+    this.isLoadingInterface = true;
     if (this.connectionInterface) {
       this.connectionInterface.unsubscribe();
       this.isLoadingFloat = true;
@@ -71,6 +72,10 @@ export class DeviceComponent implements OnInit, OnDestroy {
     var interfaceOptions = {
       ipAddress: formDeviceInfoValues.ipAddress,
       community: formDeviceInfoValues.community,
+      port: formDeviceInfoValues.port,
+      retries: formDeviceInfoValues.retransmissions,
+      timeout: formDeviceInfoValues.timeout,
+      version: formDeviceInfoValues.version,
       interfaceNumber: this.form.value.interface.split('.')[this.form.value.interface.split('.').length - 1]
     };
 
@@ -88,6 +93,10 @@ export class DeviceComponent implements OnInit, OnDestroy {
     var interfaceOptions = {
       ipAddress: formDeviceInfoValues.ipAddress,
       community: formDeviceInfoValues.community,
+      port: formDeviceInfoValues.port,
+      retries: formDeviceInfoValues.retransmissions,
+      timeout: formDeviceInfoValues.timeout,
+      version: formDeviceInfoValues.version,
       interfaceNumber: this.form.value.interface.split('.')[this.form.value.interface.split('.').length - 1],
       date: this.interfaceUsageRate ? this.interfaceUsageRate.date : new Date(),
       inOctets: this.interfaceUsageRate ? this.interfaceUsageRate.inOctets : 0,
@@ -101,9 +110,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
     this.form = new FormGroup({
       deviceInfo: new FormGroup({
-        ipAddress: new FormControl('172.31.3.102', [Validators.required]),
+        ipAddress: new FormControl('192.168.15.14', [Validators.required]),
         port: new FormControl(''),
-        community: new FormControl('MorettoCommunity', [Validators.required]),
+        community: new FormControl('YagoCommunity', [Validators.required]),
         version: new FormControl(''),
         timeout: new FormControl(''),
         retransmissions: new FormControl(''),
@@ -115,10 +124,11 @@ export class DeviceComponent implements OnInit, OnDestroy {
     this.connection = this.deviceService.getDeviceInfo().subscribe(deviceInfos => { 
       this.deviceInfos = deviceInfos.toString().replace(/,/g, '\n');
       this.isLoadingDevice = false;
+      this.isLoadingInterface = false;
     });
     this.connection = this.deviceService.getInterfaces().subscribe(interfaces => {
       this.interfaces = interfaces;
-      this.form.controls.interface.setValue(this.interfaces.length ? this.interfaces[0].oid : null);
+      this.form.controls.interface.setValue(this.interfaces && this.interfaces.length ? this.interfaces[0].oid : null);
     });
     this.connection = this.deviceService.getInterfaceSummary().subscribe(interfaceSummary => { 
       this.interfaceSummary = interfaceSummary.toString().replace(/,/g, '\n');
@@ -138,7 +148,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
   }
 
   objChanged(event) {
-    if(this.dataset) { this.dataset[0].data = []; }
+    if(this.dataset.length) { this.dataset[0].data = []; }
     this.datasetData = [];
     if (this.connectionInterface) {
       this.connectionInterface.unsubscribe();

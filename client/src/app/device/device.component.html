@@ -6,7 +6,8 @@
             <div class="row">
                 <div class="col-md-2 form-group was-validated" style="padding-right: 0;">
                     <label>IP</label>
-                    <input type="text" pattern="([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})" class="form-control" formControlName="ipAddress" required placeholder="Campo obrigatório">
+                    <input type="text" pattern="([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})" class="form-control" formControlName="ipAddress"
+                        required placeholder="Campo obrigatório">
                 </div>
                 <div class="col-md-1 form-group" style="padding-right: 0;">
                     <label>Porta</label>
@@ -18,19 +19,19 @@
                 </div>
                 <div class="col-md-1 form-group" style="padding-right: 0;">
                     <label>Versão</label>
-                    <input type="text" class="form-control" formControlName="version" maxlength="4" placeholder="0">
+                    <input type="text" class="form-control" formControlName="version" maxlength="4" placeholder="2c">
                 </div>
                 <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>Timeout</label>
-                    <input mask="000000" type="text" class="form-control" formControlName="timeout" placeholder="5000">
+                    <input mask="000000" type="text" class="form-control" formControlName="timeout" placeholder="1000">
                 </div>
                 <div class="col-md-2 form-group" style="padding-right: 0;">
                     <label>Retransmissões</label>
                     <input mask="0000" type="text" class="form-control" formControlName="retransmissions" placeholder="1">
                 </div>
                 <div class="col-md-2 form-group">
-                    <input [disabled]="form.invalid || isLoadingDevice" style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="{{ isLoadingDevice ? 'Buscando...' : 'Buscar' }}"
-                        (click)="sendDeviceOptions()">
+                    <input [disabled]="form.invalid || isLoadingDevice" style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block"
+                        type="button" value="{{ 'Buscar' }}" (click)="sendDeviceOptions()">
                 </div>
             </div>
             <div class="row">
@@ -62,15 +63,16 @@
                     <input mask="0000" type="text" class="form-control" formControlName="interval" placeholder="0">
                 </div>
                 <div class="col-md-2 form-group">
-                    <input [disabled]="!deviceInfos || deviceInfos === 'Dispositivo não encontrado.' || isLoadingInterface" style="position: absolute; bottom: 0; width: 82%;" class="btn btn-primary btn-block" type="button" value="{{ isLoadingInterface ? 'Buscando...' : 'Buscar' }}"
+                    <input [disabled]="!deviceInfos || deviceInfos === 'Dispositivo não encontrado.' || isLoadingInterface || !interfaces" style="position: absolute; bottom: 0; width: 82%;"
+                        class="btn btn-primary btn-block" type="button" value="{{ 'Buscar' }}"
                         (click)="sendInterfaceOptions()">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label>Resumo da interface</label>
-                    <div [ngClass]="{ 'loader': isLoadingInterface }"></div>
-                    <div [ngClass]="{ 'loader--fieldset': isLoadingInterface }">
+                    <div [ngClass]="{ 'loader': isLoadingInterface || !interfaces }"></div>
+                    <div [ngClass]="{ 'loader--fieldset': isLoadingInterface || !interfaces }">
                         <textarea readonly class="form-control" rows="7">{{ interfaceSummary }}</textarea>
                     </div>
                 </div>
@@ -84,10 +86,24 @@
         <div class="card-body">
             <div class="row">
                 <div *ngIf="interfaceUsageRate" class="col-md-12">
+
                     <flot [refresh]="isLoadingFloat" [options]="options" [dataset]="dataset" height="550px" width="100%"></flot>
 
-                    <span class="text-muted">Porcentagem de <b>erro</b> de <b>entrada/saída</b>: {{ (interfaceUsageRate?.porcErrorIn ? interfaceUsageRate?.porcErrorIn + '%' : '-' ) + '/' + (interfaceUsageRate?.porcErrorOut ? interfaceUsageRate?.porcErrorOut + '%' : '-') }}</span><br>
-                    <span class="text-muted">Porcentagem de <b>descarte</b> de <b>entrada/saída</b>: {{ (interfaceUsageRate?.porcDiscardIn ? interfaceUsageRate?.porcDiscardIn + '%' : '-') + '/' + (interfaceUsageRate?.porcDiscardOut ? interfaceUsageRate?.porcDiscardOut + '%' : '-') }}</span><br>
+                    <br>
+                    <span class="text-muted">Porcentagem de
+                        <b>erro:</b><br>
+                        &emsp;Entrada: {{ (interfaceUsageRate?.porcErrorIn ? interfaceUsageRate?.porcErrorIn + '%' :
+                        '-' ) }} <br> 
+                        &emsp;Saida: {{ (interfaceUsageRate?.porcErrorOut ? interfaceUsageRate?.porcErrorOut + '%' : '-') }}</span>
+                    <br>
+                    <br>
+                    <span class="text-muted">Porcentagem de
+                        <b>descarte:</b><br>
+                        &emsp;Entrada: {{ (interfaceUsageRate?.porcDiscardIn ? interfaceUsageRate?.porcDiscardIn + '%'
+                        : '-')}} <br>
+                        &emsp;Saída:  {{ (interfaceUsageRate?.porcDiscardOut ? interfaceUsageRate?.porcDiscardOut + '%' : '-')
+                        }}
+                    </span>
                 </div>
                 <div *ngIf="!interfaceUsageRate" class="col-md-12">Selecione uma interface.</div>
             </div>
