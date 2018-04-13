@@ -1,8 +1,9 @@
 import { Observable } from 'rxjs/Observable';
 import * as io from 'socket.io-client';
 
+import { environment } from '../../environments/environment';
+
 export class DeviceService {
-  private url = 'http://localhost:8080';
   private socket;
 
   public sendDeviceOptions(deviceOptions): void {
@@ -19,7 +20,7 @@ export class DeviceService {
 
   public getDeviceInfo(): any {
     let observable = new Observable(observer => {
-      this.socket = io(this.url);
+      this.socket = io.connect(environment.apiUrl);
       this.socket.on('get-device-summary', (data) => {
         observer.next(data);
       });
@@ -32,7 +33,7 @@ export class DeviceService {
 
   public getInterfaces(): any {
     let observable = new Observable(observer => {
-      this.socket = io(this.url);
+      this.socket = io.connect(environment.apiUrl);
       this.socket.on('get-interfaces', (data) => {
         observer.next(data);
       });
@@ -45,7 +46,7 @@ export class DeviceService {
 
   public getInterfaceSummary(): any {
     let observable = new Observable(observer => {
-      this.socket = io(this.url);
+      this.socket = io.connect(environment.apiUrl);
       this.socket.on('get-interface-summary', (data) => {
         observer.next(data);
       });
@@ -58,7 +59,7 @@ export class DeviceService {
 
   public getInterfaceUsageRate(): any {
     let observable = new Observable(observer => {
-      this.socket = io(this.url);
+      this.socket = io.connect(environment.apiUrl);
       this.socket.on('get-interface-usage-rate', (data) => {
         observer.next(data);
       });
