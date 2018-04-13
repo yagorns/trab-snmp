@@ -1,9 +1,13 @@
 'use strict';
 
-let app = require('express')();
-let http = require('http').Server(app);
-let io = require('socket.io')(http);
 var snmp = require("net-snmp");
+var express = require('express'), http = require('http');
+var app = express();
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+
+server.listen(4100, () => console.log('Servidor rodando na porta 4100'));
+
 
 io.on('connection', (socket) => {
     socket.on('send-device-options', (deviceInfo) => {
@@ -262,8 +266,6 @@ io.on('connection', (socket) => {
 
                 var options = {porcErrorIn, porcErrorOut, porcDiscardOut, porcDiscardIn, date, inOctets, outOctets, usageRate};
                 
-                console.log(options);
-
                 io.emit('get-interface-usage-rate', options);
             }
 
@@ -358,5 +360,3 @@ function haha(oids, deviceInfo) {
             console.error(error);
     });
 }
-
-http.listen(8080, () => console.log('Servidor iniciado na porta :8080'));
