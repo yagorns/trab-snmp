@@ -31,3 +31,18 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.device {
+    &__form {
+        &__remove-padding-right {
+            @media (min-width: 575px) {
+                padding-right: 0;
+            }
+            &--last-element {
+                @media (max-width: 992px) {
+                    padding-right: 15px;
+                }
+            }
+        }
+    }
+}

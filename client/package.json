@@ -7,7 +7,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --prod",
+    "prod": "ng build --prod --env=prod & http-server ./dist -a 0.0.0.0 -p 4200 -c-1 -s",
+    "build": "ng build --prod --env=prod",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

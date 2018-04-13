@@ -9,7 +9,7 @@ import { BaseChartDirective } from 'ng2-charts/charts/charts';
   selector: 'app-device-info',
   templateUrl: './device.component.html',
   providers: [DeviceService],
-  styleUrls: ['./device.component.css'],
+  styleUrls: ['./device.component.scss'],
 })
 export class DeviceComponent implements OnInit, OnDestroy {
 
@@ -22,32 +22,17 @@ export class DeviceComponent implements OnInit, OnDestroy {
   public datasetData: any = [];
   public labels: any = [];
   public options: any = {
-    scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
-    },
-    // Remove as opções de cima
-    legend: {
-        display: false,
-        labels: {
-            fontColor: 'rgb(255, 99, 132)'
-        }
-    },
-    title: {
-        display: true,
-        text: 'Taxa de Utilização'
-    },
+    scales: { yAxes: [{ ticks: { beginAtZero: true } }] },
+    legend: { display: false },
+    animation: { duration: 0 }
   };
+  public connectionInterface: any;
 
   public isLoadingFloat: boolean;
   public isLoadingInterface: boolean;
   public isLoadingDevice: boolean;
 
   private connection: any;
-  private connectionInterface: any;
 
   @ViewChild("baseChart") chart: BaseChartDirective;
 
@@ -83,11 +68,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
   sendInterfaceOptions() {
     if (!this.connectionInterface) {
-      if (this.form.value.interval) {
-        this.connectionInterface = IntervalObservable.create(this.form.value.interval * 1000).subscribe(() => { this.sendInterfaceIndex() } );
-      } else {
-        this.sendInterfaceIndex();
-      }
+        this.connectionInterface = IntervalObservable.create((this.form.value.interval ? this.form.value.interval : 5) * 1000).subscribe(() => { this.sendInterfaceIndex() } );
     } else {
       this.connectionInterface.unsubscribe();
       this.connectionInterface = undefined;
@@ -206,5 +187,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
       this.chart.ngOnDestroy();
       this.chart.chart = this.chart.getChartBuilder(this.chart.ctx);
     }
+  }
+
+  onResize() {
+    console.log('i\'m changing');
   }
 }
