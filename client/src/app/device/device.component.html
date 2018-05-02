@@ -40,7 +40,17 @@
 
                     <div [ngClass]="{ 'loader': isLoadingDevice }"></div>
                     <div [ngClass]="{ 'loader--fieldset': isLoadingDevice }">
-                        <textarea readonly class="form-control" id="device-textarea-resume" rows="8">{{ deviceInfos }}</textarea>
+                        <textarea readonly class="form-control" id="device-textarea-resume" rows="5">{{ deviceInfos }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="device-textarea-resume">Resumo específico (Dados atualizados a cada 2 segundos)</label>
+
+                    <div [ngClass]="{ 'loader': isLoadingDevice }"></div>
+                    <div [ngClass]="{ 'loader--fieldset': isLoadingDevice }">
+                        <textarea readonly class="form-control" id="device-textarea-resume" rows="4">{{ connectionRealtimeOptions && !realtimeOptions ? 'Carregando...' : '' }}{{ realtimeOptions }}</textarea>
                     </div>
                 </div>
             </div>

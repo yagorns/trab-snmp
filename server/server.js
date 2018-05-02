@@ -44,28 +44,7 @@ io.on("connection", socket => {
         name: "Descrição",
         oid: "1.3.6.1.2.1.1.1.0"
       },
-      {
-        name: "Tempo ligado",
-        oid: "1.3.6.1.2.1.1.3.0"
-      }
     ];
-
-    if (deviceInfo.community === "abcBolinhas" && deviceInfo.ipAddress === '172.16.0.201') {
-      infos.push(
-        {
-          name: "Temperatura (C°)",
-          oid: "1.3.6.1.4.1.25506.2.6.1.1.1.1.12.8"
-        },
-        {
-          name: "Uso da CPU (%)",
-          oid: "1.3.6.1.4.1.25506.2.6.1.1.1.1.6.8"
-        },
-        {
-          name: "Memoria (%)",
-          oid: "1.3.6.1.4.1.25506.2.6.1.1.1.1.8.8"
-        }
-      );
-    }
     var infoOids = [];
 
     session.get(infos.map(info => info.oid), (error, varbinds) => {
@@ -201,6 +180,88 @@ io.on("connection", socket => {
         io.emit("get-interface-summary", asd);
       }
 
+      session.close();
+    });
+
+    session.trap(snmp.TrapType.LinkDown, function(error) {
+      if (error) console.error(error);
+    });
+  });
+
+  socket.on("send-realtime-options", something => {
+    var options = {
+      port: something.port ? something.port : 161,
+      retries: something.retransmissions ? something.retransmissions : 1,
+      timeout: something.timeout ? something.timeout : 1000,
+      transport: "udp4",
+      trapPort: 162,
+      version: something.version ? something.version : snmp.Version2c,
+      idBitsSize: 16
+    };
+
+    var session = snmp.createSession(
+      something.ipAddress,
+      something.community,
+      options
+    );
+
+    var infos = [
+      {
+        name: "Tempo ligado",
+        oid: "1.3.6.1.2.1.1.3.0"
+      }
+    ];
+
+    if (something.community === "abcBolinhas" && something.ipAddress === '172.16.0.201') {
+      infos.push(
+        {
+          name: "Temperatura (C°)",
+          oid: "1.3.6.1.4.1.25506.2.6.1.1.1.1.12.8"
+        },
+        {
+          name: "Uso da CPU (%)",
+          oid: "1.3.6.1.4.1.25506.2.6.1.1.1.1.6.8"
+        },
+        {
+          name: "Memoria (%)",
+          oid: "1.3.6.1.4.1.25506.2.6.1.1.1.1.8.8"
+        }
+      );
+    };
+
+    var infoOids = [];
+
+    session.get(infos.map(info => info.oid), (error, varbinds) => {
+      if (error) {
+        var errorSplit = error.message.split(": ");
+        if (errorSplit[0] == "Request timed out") {
+          Console.log('Algum erro');
+        }
+      } else {
+        for (var i = 0; i < varbinds.length; i++) {
+          if (snmp.isVarbindError(varbinds[i])) {
+            console.error(snmp.varbindError(varbinds[i]));
+          } else {
+            var oidValue =
+              varbinds[i].type === 4
+                ? varbinds[i].value.toString("binary")
+                : varbinds[i].value;
+            oidValue =
+              varbinds[i].type === 67
+                ? (oidValue / 100)
+                    .toFixed()
+                    .toString()
+                    .concat(" segundos")
+                : oidValue;
+
+            infoOids.push(infos[i].name.concat(": ").concat(oidValue));
+          }
+        }
+
+        io.emit("get-realtime-options", infoOids);
+      }
+
+      // If done, close the session
       session.close();
     });
 

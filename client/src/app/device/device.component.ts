@@ -14,6 +14,7 @@ import { BaseChartDirective } from 'ng2-charts/charts/charts';
 export class DeviceComponent implements OnInit, OnDestroy {
 
   public form: FormGroup;
+  public realtimeOptions: string = '';
   public deviceInfos: string = '';
   public interfaces: any = [];
   public interfaceSummary: string = '';
@@ -27,6 +28,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
     animation: { duration: 0 }
   };
   public connectionInterface: any;
+  public connectionRealtimeOptions: any;
 
   public isLoadingFloat: boolean;
   public isLoadingInterface: boolean;
@@ -44,6 +46,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
   
   sendDeviceOptions() {
     this.deviceInfos = '';
+    this.realtimeOptions = '';
     this.interfaces = [];
     this.interfaceSummary = '';
     this.datasetData = [];
@@ -52,18 +55,22 @@ export class DeviceComponent implements OnInit, OnDestroy {
     this.isLoadingInterface = true;
     if (this.connectionInterface) {
       this.connectionInterface.unsubscribe();
+      this.connectionRealtimeOptions.unsubscribe();
       this.refreshChart();
     }
     var formDeviceInfoValues = this.form.value.deviceInfo;
 
-    this.deviceService.sendDeviceOptions({
+    var options = {
       ipAddress: formDeviceInfoValues.ipAddress,
       community: formDeviceInfoValues.community,
       port: formDeviceInfoValues.port,
       retries: formDeviceInfoValues.retransmissions,
       timeout: formDeviceInfoValues.timeout,
       version: formDeviceInfoValues.version
-    });
+    };
+
+    this.deviceService.sendDeviceOptions(options);
+    this.connectionRealtimeOptions = IntervalObservable.create(2000).subscribe(() => { this.deviceService.sendRealtimeOptions(options) } );
   }
 
   sendInterfaceOptions() {
@@ -71,6 +78,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
         this.connectionInterface = IntervalObservable.create((this.form.value.interval ? this.form.value.interval : 5) * 1000).subscribe(() => { this.sendInterfaceIndex() } );
     } else {
       this.connectionInterface.unsubscribe();
+      this.connectionRealtimeOptions.unsubscribe();
       this.connectionInterface = undefined;
     }
   }
@@ -122,6 +130,11 @@ export class DeviceComponent implements OnInit, OnDestroy {
       this.interfaceSummary = interfaceSummary.toString().replace(/,/g, '\n');
       this.isLoadingInterface = false;
     });
+    this.connection = this.deviceService.getRealtimeOptions().subscribe(realTimeOptions => { 
+      this.realtimeOptions = realTimeOptions.toString().replace(/,/g, '\n');
+      this.isLoadingDevice = false;
+      this.isLoadingInterface = false;
+    });
     this.connection = this.deviceService.getInterfaceUsageRate().subscribe(interfaceUsageRate => { 
       if (this.labels.length == 15) {
         this.labels.shift();
@@ -156,7 +169,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
     this.datasetData = [];
     if (this.connectionInterface) {
       this.connectionInterface.unsubscribe();
+      this.connectionRealtimeOptions.unsubscribe();
       this.connectionInterface = undefined;
+      this.connectionRealtimeOptions = undefined;
       this.refreshChart();
     }
     this.interfaceSummary = '';
