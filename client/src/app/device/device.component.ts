@@ -98,9 +98,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
     this.form = new FormGroup({
       deviceInfo: new FormGroup({
-        ipAddress: new FormControl('192.168.15.20', [Validators.required]),
+        ipAddress: new FormControl('172.16.0.201', [Validators.required]),
         port: new FormControl(''),
-        community: new FormControl('LegendaryCommunity', [Validators.required]),
+        community: new FormControl('abcBolinhas', [Validators.required]),
         version: new FormControl(''),
         timeout: new FormControl(''),
         retransmissions: new FormControl(''),

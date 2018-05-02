@@ -50,7 +50,7 @@ io.on("connection", socket => {
       }
     ];
 
-    if (deviceInfo.community === "abcBolinhas") {
+    if (deviceInfo.community === "abcBolinhas" && deviceInfo.ipAddress === '172.16.0.201') {
       infos.push(
         {
           name: "Temperatura (C°)",
@@ -310,12 +310,12 @@ io.on("connection", socket => {
             asd.find(a => a.oid === infoOids[7].oid).value)
         ).toFixed(2);
 
-        var inOctets = asd.find(a => a.oid === infoOids[8].oid).value;
-        var outOctets = asd.find(a => a.oid === infoOids[9].oid).value;
+        var inOctets = (asd.find(a => a.oid === infoOids[8].oid).value) / 2;
+        var outOctets = (asd.find(a => a.oid === infoOids[9].oid).value) / 2;
         var date = new Date();
 
         var totalBytes =
-          inOctets - something.inOctets + (outOctets - something.outOctets);
+          (inOctets - something.inOctets) + (outOctets - something.outOctets);
         var secondsBetweenDates = Math.abs(
           (date.getTime() - new Date(something.date).getTime()) / 1000
         );
@@ -342,6 +342,7 @@ io.on("connection", socket => {
           ? 0.0
           : porcDiscardIn;
 
+        usageRate = usageRate * 100;
         var options = {
           porcErrorIn,
           porcErrorOut,
